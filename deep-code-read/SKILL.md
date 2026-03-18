@@ -163,6 +163,17 @@ When answering user questions in this phase:
 
 Continue until the user is satisfied or decides to end the session.
 
+### Phase 7: Cleanup
+
+If the source was cloned from a URL (i.e., `{output-dir}/{project-name}/` was created in Phase 1):
+
+> "Skills are ready. The cloned source code is at `{output-dir}/{project-name}/`. Want me to delete it to save disk space, or keep it for reference?"
+
+- User says delete → remove the cloned directory
+- User says keep → leave it as is
+
+Skip this phase if the source was a local path (we never cloned anything).
+
 ## Key Rules
 
 - **Never modify source code** — the source repo is read-only throughout
