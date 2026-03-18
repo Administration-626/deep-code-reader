@@ -9,10 +9,7 @@ Systematically read and understand a codebase, producing a set of verified cogni
 
 The core mechanism: a closed-book exam verification loop ensures generated skills are genuinely comprehensive, not shallow summaries.
 
-## Prerequisites
-
-- **superpowers** plugin must be installed (`claude plugins add superpowers`)
-  - Agent A depends on `superpowers:writing-skills` for skill file formatting conventions
+**REQUIRED SUB-SKILL:** Use `superpowers:writing-skills` for skill file formatting conventions (Agent A invokes this when generating module skills).
 
 ## Usage
 
