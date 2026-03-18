@@ -110,10 +110,10 @@ Agent C returns answers to each question.
 
 **Step 3 — Evaluate:**
 
-Compare Agent C's answers against Agent B's answer keys. An answer FAILS if it:
-- Contradicts the answer key
-- Is substantially incomplete compared to the answer key
-- Resorts to vague generalization where the answer key provides specifics
+For each question, check Agent C's answer against Agent B's `required_facts` list:
+- An answer PASSES if it covers ALL required facts (exact match or semantic equivalent)
+- An answer FAILS if it misses any required fact
+- This is an objective check, not a subjective judgment
 
 **Step 4 — Loop or proceed:**
 
