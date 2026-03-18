@@ -86,12 +86,13 @@ Dispatch an Agent with `agent-b-prompt.md`, using `model: "haiku"`.
 
 **Variables:**
 - `{source-dir}`, `{module-dir}`, `{module-name}`
+- `{previous_questions}`: empty string for the first round
 
 Agent B returns two sets:
 - Verification questions with answer keys (JSON array)
 - Recommended questions for user (JSON array)
 
-Save the recommended questions (keep in context for Phase 6).
+Save the recommended questions (keep in context for Phase 6). Accumulate all verification questions asked so far across rounds.
 
 **Step 2 — Agent C (closed-book answer):**
 
@@ -119,7 +120,7 @@ Compare Agent C's answers against Agent B's answer keys. An answer FAILS if it:
 - All questions pass → module verified, update task, move to next module
 - Some questions fail → collect failed questions with: the question, B's answer key, C's failed answer
 - Feed these back to Agent A: dispatch again with supplementary instructions to improve the skill based on the gaps
-- Then re-run Agent B and Agent C
+- Then re-run Agent B and Agent C, passing ALL previous questions (from all rounds) as `{previous_questions}` so B generates new questions instead of repeating old ones
 - **Max 3 iterations** — after 3 rounds, show unresolved questions to the user for judgment
 
 ### Phase 5: Generate Global Index

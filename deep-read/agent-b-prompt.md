@@ -36,7 +36,20 @@ Return a JSON object with exactly two arrays:
 }
 ```
 
-## Verification Questions (5-8 questions)
+## Iteration Mode
+
+If `{previous_questions}` is provided, you are in a re-test iteration. You MUST:
+
+1. **Re-verify failed areas**: generate 1-2 questions about the same TOPICS that previously failed, but phrase them differently (not the same question verbatim)
+2. **Append new questions**: generate 3-5 entirely NEW questions covering areas NOT tested in any previous round
+3. Do NOT repeat any question from `{previous_questions}` verbatim
+
+Previous questions (if any):
+{previous_questions}
+
+If `{previous_questions}` is empty or not provided, this is the first round — generate a fresh set as described below.
+
+## Verification Questions (5-8 questions per round)
 
 These test whether the skill document captured specific, concrete knowledge. Each question MUST have an answer key derived directly from the source code.
 
