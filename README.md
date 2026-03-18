@@ -14,18 +14,24 @@ When LLMs read code, they default to skimming and summarizing. Ask them to "unde
 
 Deep Code Reader produces **verified cognitive skills** — structured knowledge documents that an AI can load and immediately operate at the level of someone who has actually read the code.
 
-The key innovation: a **closed-book exam** verification loop.
+### How it works
 
 ```
-Agent A (reads code) → generates skill
-Agent B (reads code, no skill) → generates exam questions + answer keys
-Agent C (reads skill, no code) → takes the exam
-                                     ↓
-                          Pass? → Next module
-                          Fail? → A improves skill → re-exam
+Scan repo → identify modules & dependencies → you pick what to read
+                          ↓
+         For each module: deep read → generate skill
+                          ↓
+              Closed-book exam verification (ABC loop)
+                          ↓
+         Agent B (reads code, no skill) → exam questions + answer keys
+         Agent C (reads skill, no code) → takes the exam
+                          ↓
+              Pass? → Next module / Fail? → improve skill → re-exam
+                          ↓
+              Global index + Q&A acceptance with you
 ```
 
-If Agent C can answer detailed questions about the code using ONLY the generated skills — without touching source code — then the skills are genuinely comprehensive. If not, they get improved until they are.
+The tool first scans the repo structure to map out modules and their dependencies, then lets you choose which modules to deep-read. Each module goes through a thorough reading phase followed by a **closed-book exam** — if Agent C can answer detailed questions using ONLY the generated skills, without touching source code, the skills are genuinely comprehensive. If not, they get improved until they are.
 
 ## Let Your Tokens Learn While You Sleep
 
