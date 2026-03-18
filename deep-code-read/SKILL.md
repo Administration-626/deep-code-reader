@@ -9,7 +9,7 @@ Systematically read and understand a codebase, producing a set of verified cogni
 
 The core mechanism: a closed-book exam verification loop ensures generated skills are genuinely comprehensive, not shallow summaries.
 
-**REQUIRED SUB-SKILL:** Use `superpowers:writing-skills` for skill file formatting conventions (Agent A invokes this when generating module skills). Install via `claude plugins add superpowers` (source: https://github.com/obra/superpowers).
+**REQUIRED SUB-SKILL:** Use `superpowers:writing-skills` for skill file formatting conventions (Agent A invokes this when generating module skills). Install superpowers from https://github.com/obra/superpowers following your platform's plugin/skill installation method.
 
 ## Usage
 
@@ -18,11 +18,11 @@ The core mechanism: a closed-book exam verification loop ensures generated skill
 ```
 
 - **source**: local path (e.g., `./path/to/repo`) or GitHub URL (e.g., `https://github.com/org/repo`)
-- **output-dir**: where generated skills are written (e.g., `~/.claude/skills/`)
+- **output-dir**: where generated skills are written (e.g., your platform's skills directory)
 
 ## Full Flow
 
-You MUST follow these phases in order. Use TaskList to track progress across modules.
+You MUST follow these phases in order. Track progress across modules using your platform's task/todo tracking mechanism.
 
 ### Phase 1: Prepare
 
@@ -53,13 +53,13 @@ You MUST follow these phases in order. Use TaskList to track progress across mod
 3. Analyze import/dependency relationships between modules
 4. **PAUSE — present module list and dependency graph to user:**
    > "Found the following modules: [list with one-line descriptions]. Select which modules to deep-read (or 'all')."
-5. Record the user's selection in TaskList — one task per selected module
+5. Record the user's selection — one task per selected module
 
 ### Phase 3: Deep Read (Agent A)
 
-For each selected module, dispatch an Agent with the prompt template from `agent-a-prompt.md`.
+For each selected module, dispatch a subagent with the prompt template from `agent-a-prompt.md`.
 
-**Agent dispatch parameters:**
+**Subagent dispatch parameters:**
 - `prompt`: rendered `agent-a-prompt.md` with variables filled in
 - `description`: "Deep read {module-name}"
 
@@ -79,11 +79,11 @@ For each module that has generated skills, run the verification cycle:
 
 **Step 1 — Agent B (question generation):**
 
-Dispatch an Agent with `agent-b-prompt.md`, using `model: "haiku"`.
+Dispatch a subagent with `agent-b-prompt.md`, using a lightweight/smaller model (e.g., Haiku-class).
 
-**Agent dispatch parameters:**
+**Subagent dispatch parameters:**
 - `prompt`: rendered `agent-b-prompt.md`
-- `model`: `"haiku"`
+- `model`: a smaller, cheaper model — the weaker the better (if it catches gaps, those gaps are real)
 - `description`: "Generate questions for {module-name}"
 
 **Variables:**
@@ -98,9 +98,9 @@ Save the recommended questions (keep in context for Phase 6). Accumulate all ver
 
 **Step 2 — Agent C (closed-book answer):**
 
-Dispatch an Agent with `agent-c-prompt.md`.
+Dispatch a subagent with `agent-c-prompt.md`.
 
-**Agent dispatch parameters:**
+**Subagent dispatch parameters:**
 - `prompt`: rendered `agent-c-prompt.md` with verification questions embedded
 - `description`: "Verify skills for {module-name}"
 
@@ -168,5 +168,5 @@ Continue until the user is satisfied or decides to end the session.
 - **Never modify source code** — the source repo is read-only throughout
 - **Agent isolation is critical** — each agent's prompt strictly defines what it can read
 - **Skills must be self-sufficient** — the verification loop exists to ensure this
-- **Progress via TaskList** — every module is a task, updated as it progresses through phases
+- **Track progress** — every module is a task, updated as it progresses through phases
 - **Format via writing-skills** — Agent A follows `superpowers:writing-skills` formatting conventions (frontmatter, CSO description, directory structure) but does NOT run the full writing-skills TDD cycle
