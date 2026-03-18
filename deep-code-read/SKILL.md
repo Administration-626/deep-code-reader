@@ -9,7 +9,7 @@ Systematically read and understand a codebase, producing a set of verified cogni
 
 The core mechanism: a closed-book exam verification loop ensures generated skills are genuinely comprehensive, not shallow summaries.
 
-**REQUIRED SUB-SKILL:** Use `superpowers:writing-skills` for skill file formatting conventions (Agent A invokes this when generating module skills).
+**REQUIRED SUB-SKILL:** Use `superpowers:writing-skills` for skill file formatting conventions (Agent A invokes this when generating module skills). Install via `claude plugins add superpowers` (source: https://github.com/obra/superpowers).
 
 ## Usage
 
