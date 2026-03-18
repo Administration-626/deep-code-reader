@@ -24,6 +24,7 @@ Return a JSON object with exactly two arrays:
     {
       "question": "...",
       "answer_key": "...",
+      "required_facts": ["fact 1 that MUST appear in the answer", "fact 2", "..."],
       "difficulty": "detail|logic|integration"
     }
   ],
@@ -74,6 +75,11 @@ These test whether the skill document captured specific, concrete knowledge. Eac
 - Must reference specific function names, file paths, or type names
 - Must be verifiable by reading the source code
 
+**Required facts rules:**
+- Each question must have 2-5 required facts
+- Each fact is a specific, verifiable piece of information (function name, file path, behavior, type name)
+- These are the pass/fail criteria: Agent C's answer must cover ALL required facts to pass
+- Facts should be concrete and unambiguous — not "handles errors well" but "calls handleError() in src/hooks/error.ts"
 
 ## Recommended Questions (3-5 questions)
 
