@@ -100,14 +100,15 @@ That's it. The tool handles everything automatically, pausing only twice for you
 - Inter-module dependency map / 模块间依赖关系图
 - Cross-module scenario guides / 跨模块场景指南
 
-## How It's Different / 与其他方案的区别
+## Let Your Tokens Learn While You Sleep / 让你的 Token 在你睡觉时学习
 
-| Approach / 方案 | How it works / 原理 | Limitation / 局限 |
-|---|---|---|
-| **RAG** (src-to-kb, Greptile) | Vector search on code chunks / 对代码分块做向量检索 | Every query hits the index; no pre-digested understanding / 每次查询都要检索，没有预消化的理解 |
-| **Tutorial generators** (PocketFlow) | LLM writes docs from code / LLM 从代码生成文档 | No verification; output quality is unchecked / 没有验证，产出质量无保障 |
-| **Knowledge graphs** (DeepCode) | AST + graph DB / AST 解析 + 图数据库 | Heavy infrastructure; not portable / 基础设施重，不可移植 |
-| **Deep Code Reader** | Read → Skill → Closed-book exam → Improve | Skills are verified to be comprehensive; zero infrastructure; works offline / 技能经过验证确保全面；零基础设施；离线可用 |
+Most subscription plans include ~5 hours of daily AI compute. Much of it goes unused overnight. Deep Code Reader turns that idle quota into accumulated knowledge.
+
+大多数订阅套餐包含约 5 小时的每日 AI 算力额度，夜间大量闲置。Deep Code Reader 把这些空闲额度变成积累的知识。
+
+Fire it off before bed, wake up to a fully analyzed repo with verified skills ready to load. The more repos you run, the more your AI knows — compounding overnight, zero extra cost.
+
+睡前启动，醒来就有一整套经过验证的技能可以加载。跑的仓库越多，你的 AI 懂的就越多 —— 利用夜间额度，零额外成本持续积累。
 
 ## The ABC Verification Loop / ABC 验证循环
 
