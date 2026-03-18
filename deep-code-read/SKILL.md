@@ -1,6 +1,8 @@
 ---
 name: deep-code-read
 description: Use when you want to deeply understand an unfamiliar codebase and generate reusable cognitive skills from it, by providing a local path or GitHub URL
+version: 1.0.0
+homepage: https://github.com/CiferaTeam/deep-code-reader
 ---
 
 # Deep Code Reader
