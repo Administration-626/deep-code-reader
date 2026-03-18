@@ -1,5 +1,5 @@
 ---
-name: deep-read
+name: deep-code-read
 description: Use when you want to deeply understand an unfamiliar codebase and generate reusable cognitive skills from it, by providing a local path or GitHub URL
 ---
 
@@ -12,7 +12,7 @@ The core mechanism: a closed-book exam verification loop ensures generated skill
 ## Usage
 
 ```
-/deep-read <source> <output-dir>
+/deep-code-read <source> <output-dir>
 ```
 
 - **source**: local path (e.g., `./path/to/repo`) or GitHub URL (e.g., `https://github.com/org/repo`)
