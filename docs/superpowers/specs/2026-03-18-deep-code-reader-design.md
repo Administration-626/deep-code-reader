@@ -53,7 +53,7 @@ One command triggers the entire flow. Only two points pause for user confirmatio
 
 - **URL input**: clone repo to `{output-dir}/{project-name}/`
 - **Local input**: use the path directly
-- Detect tags (prefer latest by lexicographic order) and branches, recommend a target version
+- Detect tags (prefer latest by semver-aware sorting; fall back to lexicographic for non-semver tags) and branches, recommend a target version
 - **PAUSE**: wait for user to confirm target tag/branch
 
 ### Phase 2: Scan
@@ -76,7 +76,7 @@ For each selected module, the primary model reads source code and generates skil
 
 Three dimensions of coverage: **what it can do** (capabilities), **why it does it that way** (design logic), **how to change it** (modification guide).
 
-Agent A MUST invoke `superpowers:writing-skills` to ensure generated skill files follow proper format conventions.
+Agent A MUST follow the formatting and structural conventions from `superpowers:writing-skills` (frontmatter format, CSO description rules, directory structure). Agent A does NOT run the full writing-skills TDD cycle — the ABC verification loop in Phase 4 serves as the quality gate instead.
 
 Progress tracked via TaskList.
 
@@ -84,22 +84,35 @@ Progress tracked via TaskList.
 
 For each module, run a closed-book verification cycle:
 
-**Agent B** (Haiku model):
-- Reads module source code, does NOT load any generated skills
+### Agent Orchestration
+
+All agents are dispatched via the Claude Code `Agent` tool from the main SKILL.md orchestrator. Access isolation is enforced through prompt instructions — each agent's prompt explicitly specifies which files/directories it may read.
+
+**Agent A** (primary model, dispatched via `Agent` tool):
+- Prompt specifies: read source code in `{module-dir}`, write skill files to `{output-dir}/{project}-dr-{module}/`
+- Follows `superpowers:writing-skills` formatting conventions
+
+**Agent B** (Haiku model, dispatched via `Agent` tool with `model: "haiku"`):
+- Prompt specifies: read ONLY source code in `{module-dir}`, do NOT read any `*-dr-*` directories
 - Generates two separate sets of questions:
-  - **Verification questions**: for Agent C's closed-book test, focused on specific details
-  - **Recommended questions**: saved for user acceptance phase, focused on usage and modification perspectives
+  - **Verification questions** (with answer keys): for Agent C's closed-book test, focused on specific details. Each question includes a brief expected answer derived from the source code.
+  - **Recommended questions**: saved for user acceptance phase, focused on usage and modification perspectives. Kept in context window for Phase 6.
 - The two sets must not overlap
 
-**Agent C** (primary model):
-- Does NOT read source code, only loads all files in the module's skill directory
+**Agent C** (primary model, dispatched via `Agent` tool):
+- Prompt specifies: read ONLY files in `{output-dir}/{project}-dr-{module}/`, do NOT read any source code
 - Answers verification questions in closed-book mode
 - Every answer must be specific (function names, file paths, processing flows) — no vague summaries allowed
 
-**Loop logic:**
-1. A generates skill → B generates questions → C answers
-2. Questions C cannot answer or answers incorrectly → feedback to A specifying what's missing
-3. A supplements skill → B regenerates questions → C re-answers
+### Answer Evaluation
+
+The orchestrator compares Agent C's answers against Agent B's answer keys. An answer is considered failing if it contradicts the answer key, is substantially incomplete, or resorts to vague generalization where the answer key provides specifics.
+
+### Loop Logic
+
+1. A generates skill → B generates questions with answer keys → C answers → orchestrator evaluates
+2. Questions C fails → orchestrator feeds back to A specifying what's missing (the question + B's answer key + C's failed answer)
+3. A supplements skill → B regenerates questions → C re-answers → orchestrator evaluates
 4. All verification questions pass → module complete, move to next
 5. **Max 3 iterations** — if still failing after 3 rounds, show unresolved questions to user for judgment
 
