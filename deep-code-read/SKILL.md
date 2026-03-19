@@ -121,11 +121,17 @@ For each question, check Agent C's answer against Agent B's `required_facts` lis
 
 **Step 4 — Loop or proceed:**
 
-- All questions pass → module verified, update task, move to next module
-- Some questions fail → collect failed questions with: the question, B's answer key, C's failed answer
-- Feed these back to Agent A: dispatch again with supplementary instructions to improve the skill based on the gaps
-- Then re-run Agent B and Agent C, passing ALL previous questions (from all rounds) as `{previous_questions}` so B generates new questions instead of repeating old ones
-- **Max 3 iterations** — after 3 rounds, show unresolved questions to the user for judgment
+**HARD RULE: You MUST continue looping until 100% of verification questions pass OR you have completed exactly 3 rounds. There is NO early exit. A pass rate of 99% is still a failure — loop again.**
+
+- 100% pass → module verified, update task, move to next module
+- ANY question fails (even one) → you MUST continue to the next round:
+  1. Collect failed questions with: the question, B's answer key, C's failed answer
+  2. Feed these back to Agent A: dispatch again with supplementary instructions to improve the skill based on the gaps
+  3. Re-run Agent B and Agent C, passing ALL previous questions (from all rounds) as `{previous_questions}` so B generates new questions instead of repeating old ones
+  4. Evaluate again — repeat until 100% or 3 rounds completed
+- **After exactly 3 rounds with failures remaining** → show the unresolved questions and pass rates to the user for judgment. Do NOT silently move on.
+
+**Do NOT rationalize stopping early.** "Good enough", "most questions passed", "diminishing returns" are not valid reasons to skip a round. The loop exists to catch gaps — use all 3 rounds if needed.
 
 ### Phase 5: Generate Global Index
 
