@@ -2,7 +2,7 @@
 name: deep-code-read
 description: Use when you want to deeply understand an unfamiliar codebase and generate reusable cognitive skills from it, by providing a local path or GitHub URL
 version: 1.0.0
-homepage: https://github.com/CiferaTeam/deep-code-reader
+homepage: https://github.com/Administration-626/deep-code-reader
 ---
 
 # Deep Code Reader
@@ -11,7 +11,6 @@ Systematically read and understand a codebase, producing a set of verified cogni
 
 The core mechanism: a closed-book exam verification loop ensures generated skills are genuinely comprehensive, not shallow summaries.
 
-**REQUIRED SUB-SKILL:** Use `superpowers:writing-skills` for skill file formatting conventions (Agent A invokes this when generating module skills). Install superpowers from https://github.com/obra/superpowers following your platform's plugin/skill installation method.
 
 ## Usage
 
@@ -73,7 +72,7 @@ For each selected module, dispatch a subagent with the prompt template from `age
 - `{module-name}`: the module name
 - `{ref}`: the tracked tag/branch
 
-After Agent A completes, verify the skill files were written to `{output-dir}/{project-name}-dr-{module-name}/`. Update the module's task status.
+After Agent A completes, verify the skill files were written to `{output-dir}/{project-name}-dr/skills/{module-name}/`. Update the module's task status.
 
 ### Phase 4: Verify (ABC Loop)
 
@@ -107,7 +106,7 @@ Dispatch a subagent with `agent-c-prompt.md`.
 - `description`: "Verify skills for {module-name}"
 
 **Variables:**
-- `{skill-dir}`: `{output-dir}/{project-name}-dr-{module-name}/`
+- `{skill-dir}`: `{output-dir}/{project-name}-dr/skills/{module-name}/`
 - `{questions}`: the verification questions from Agent B (without answer keys)
 
 Agent C returns answers to each question.
@@ -135,7 +134,7 @@ For each question, check Agent C's answer against Agent B's `required_facts` lis
 
 ### Phase 5: Generate Global Index
 
-After all modules are verified, generate `{output-dir}/{project-name}-dr/SKILL.md`:
+After all modules are verified, generate the plugin index at `{output-dir}/{project-name}-dr/skills/index/SKILL.md`:
 
 ```yaml
 ---
@@ -155,6 +154,13 @@ Content must include:
 
 To generate cross-module scenarios, read ALL the module skills and synthesize typical user workflows.
 
+Also generate `{output-dir}/{project-name}-dr/plugin.json`:
+```json
+{
+  "name": "{project-name}-dr"
+}
+```
+
 ### Phase 6: User Acceptance
 
 Present the recommended questions collected from Phase 4:
@@ -165,7 +171,7 @@ Present the recommended questions collected from Phase 4:
 > Feel free to ask any question about {project-name}. I'll answer using ONLY the generated skills."
 
 When answering user questions in this phase:
-- Read ONLY the generated skill files in `{output-dir}/{project-name}-dr*/`
+- Read ONLY the generated skill files in `{output-dir}/{project-name}-dr/skills/*/`
 - Do NOT read source code
 - If you cannot answer a question from the skills alone, say so honestly — this indicates a gap
 
@@ -188,4 +194,4 @@ Skip this phase if the source was a local path (we never cloned anything).
 - **Agent isolation is critical** — each agent's prompt strictly defines what it can read
 - **Skills must be self-sufficient** — the verification loop exists to ensure this
 - **Track progress** — every module is a task, updated as it progresses through phases
-- **Format via writing-skills** — Agent A follows `superpowers:writing-skills` formatting conventions (frontmatter, CSO description, directory structure) but does NOT run the full writing-skills TDD cycle
+- **Format strictly** — Agent A must follow the YAML frontmatter and section guidelines defined in its prompt.

@@ -14,6 +14,13 @@ When LLMs read code, they default to skimming and summarizing. Ask them to "unde
 
 Deep Code Reader produces **verified cognitive skills** — structured knowledge documents that an AI can load and immediately operate at the level of someone who has actually read the code.
 
+### Why Deep Code Reader?
+
+- **Massive Token Savings at Query Time**: While the initial generation (the ABC loop) consumes a fair amount of compute (perfect for utilizing idle overnight quota), your day-to-day development becomes extremely cheap. Instead of dumping a massive 100k+ line codebase into context every time you ask a question, the AI only reads the highly compressed `SKILL.md` documents. "Compile once, query infinitely at 10% of the cost."
+- **Zero-Dependency & Universal**: Outputs standard plain-text Markdown and YAML. No need to install third-party plugins. Natively cross-compatible with Codex, Gemini CLI, Claude Code, and other major AI agents.
+- **Auto-Generated Visual Architecture**: Automatically forces the generation of ASCII/Mermaid diagrams for complex state machines and data flows, making logic instantly comprehensible.
+- **Eliminates AI Hallucinations**: The pioneering ABC closed-book exam loop ensures the generated knowledge base is genuinely comprehensive, because Agent C must pass difficult questions from Agent B without looking at the source code.
+
 ### How it works
 
 ```
@@ -43,23 +50,30 @@ Fire it off before bed, wake up to a fully analyzed repo with verified skills re
 
 ### Install
 
-Add `deep-code-read` to your agent's skills directory:
+Add `deep-code-read` to your agent's skills directory. We recommend the universal cross-agent `~/.agents/` directory:
 
 ```bash
-git clone https://github.com/CiferaTeam/deep-code-reader.git
-cp -r deep-code-reader/deep-code-read ~/.claude/skills/
+git clone https://github.com/Administration-626/deep-code-reader.git
+
+# Recommended: Universal cross-agent path (supports Codex, Copilot CLI, Gemini, etc.)
+cp -r deep-code-reader/deep-code-read ~/.agents/skills/
+
+# Or, if you prefer specific assistant directories:
+# cp -r deep-code-reader/deep-code-read ~/.gemini/skills/
+# cp -r deep-code-reader/deep-code-read ~/.claude/skills/
 ```
 
-**Dependency:** [superpowers](https://github.com/obra/superpowers) must be installed for skill formatting conventions.
+
 
 ### Use
 
 ```bash
-# From a GitHub URL
-/deep-code-read https://github.com/example/project ~/.claude/skills/
+# From a GitHub URL (output to system's plugins directory)
+# Note: We recommend outputting to ~/.agents/plugins/ for cross-agent compatibility
+/deep-code-read https://github.com/example/project ~/.agents/plugins/
 
 # From a local repo
-/deep-code-read ./path/to/project ~/.claude/skills/
+/deep-code-read ./path/to/project ~/.agents/plugins/
 ```
 
 That's it. The tool handles everything automatically, pausing only twice for your input:
@@ -67,18 +81,32 @@ That's it. The tool handles everything automatically, pausing only twice for you
 1. **Confirm version** — which tag/branch to analyze
 2. **Select modules** — which parts to deep-read
 
+### Uninstall
+
+Since skills are entirely based on plain-text directory structures and involve no system-level processes or background agents, uninstalling is as simple as deleting the folders:
+
+```bash
+# Uninstall the core deep-code-read skill
+rm -rf ~/.agents/skills/deep-code-read/
+
+# Uninstall any auto-generated project knowledge base plugin
+rm -rf ~/.agents/plugins/project-dr/
+```
+
 ## What You Get
 
-```
-~/.claude/skills/
-  project/                      # Cloned source (URL only)
-  project-dr/                   # Global index skill
-    SKILL.md
-  project-dr-auth/              # Module skill
-    SKILL.md
-    reference.md                # Optional for complex modules
-  project-dr-routing/
-    SKILL.md
+```text
+~/.agents/plugins/              # Universal plugin location
+  project-dr/                   # Auto-generated knowledge base plugin
+    plugin.json                 # Plugin config
+    skills/
+      index/                    # Global architecture & router
+        SKILL.md
+      auth/                     # Module cognitive skill
+        SKILL.md
+        reference.md            # Optional for complex modules
+      routing/
+        SKILL.md
   ...
 ```
 
@@ -89,7 +117,7 @@ That's it. The tool handles everything automatically, pausing only twice for you
 | **Purpose & Capabilities** | What the module does, its public API, function signatures |
 | **Core Design Logic** | WHY it's built this way, key architectural decisions |
 | **Data Structures** | Key types, interfaces, and their relationships |
-| **State Flow** | How data flows, entry points, error paths |
+| **State Flow** | How data flows, entry points, error paths, and ASCII/Mermaid diagrams |
 | **Modification Guide** | "To change X, modify these files" |
 
 ### The global index skill includes:

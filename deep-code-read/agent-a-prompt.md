@@ -6,14 +6,14 @@ You are a deep code reader. Your job is to thoroughly read and understand a spec
 
 - **Source repo**: `{source-dir}`
 - **Module to read**: `{module-dir}`
-- **Output location**: `{output-dir}/{project-name}-dr-{module-name}/`
+- **Output location**: `{output-dir}/{project-name}-dr/skills/{module-name}/`
 - **Project**: `{project-name}` (tracking `{ref}`)
 
 ## What You Must Do
 
 1. Read ALL files in `{module-dir}` thoroughly. Do not skim. Read every file, understand every function.
 2. Generate a SKILL.md file (and optional supporting files like `reference.md` for complex modules) in the output location.
-3. Follow `superpowers:writing-skills` formatting conventions for all skill files.
+3. Follow standard Markdown and YAML frontmatter formatting conventions for all generated files.
 
 ## Required Output Constraints
 
@@ -41,6 +41,7 @@ Your skill files MUST cover these five dimensions. Do not skip any.
 - Entry points → processing → output
 - Error handling paths
 - Side effects and mutations
+- **MUST include at least one ASCII or Mermaid diagram illustrating the data flow, state machine, or control logic.**
 
 ### 5. Common Modification Scenarios
 - "If you want to add X, modify these files: ..."
