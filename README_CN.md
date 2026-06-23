@@ -1,166 +1,75 @@
-# Deep Code Reader
+# Deep Code Reader v2: 认知事务引擎
 
 [English](README.md)
 
-**把任何代码库转化为经过验证的、可复用的 AI 认知型 skills —— 不是摘要，不是 RAG，而是真正的深度理解。**
+**把任何代码库转化为经过验证的、长期稳定的 AI 技能。它不是简单的代码摘要，也不是 RAG，而是一个具有 ACID 特性、永远不会随时间发生“静默腐烂”的认知事务引擎（Cognitive Transaction Engine）。**
 
 ---
 
-## 问题
+## 我们面临的问题
 
-LLM 阅读代码时的默认行为是浏览和概括。让它"理解"一个仓库，你只会得到一份泛泛的概述，一旦问到具体问题就露馅。下次再问，又得从头搜索。
+现有的 LLM 工具在阅读代码时的默认行为是浏览和概括。让它"理解"一个仓库，你只会得到一份泛泛的概述，一旦问到具体细节就会产生幻觉。
 
-## 解决方案
+更可怕的是，随着代码库的持续演进，AI 的知识库会发生**“静默腐烂（Silent Rot）”**。被删除的模块变成了“幽灵状态（Ghost State）”；被修改的共享接口会悄无声息地污染其他依赖它的模块的认知。大多数工具试图用“智能后台驻留（Smart Background Watchers）”或“语义对比”来解决这个问题，但这不可避免地引入了非确定性（Nondeterministic behavior），并最终导致最致命的**漏杀（False Negatives）**—— AI 会非常自信地基于过期的旧知识给你提供错误的答案。
 
-Deep Code Reader 产出的是**经过验证的认知技能** —— 结构化的知识文档，AI 加载后就能像真正读过代码的人一样工作。
+## 解决方案：认知事务语义
 
-### 核心优势 (Why Deep Code Reader?)
+Deep Code Reader v2 已经从一个普通的“AI 读代码工具”进化成了一个 **确定性的有状态认知基础设施（Deterministic Stateful Cognition Infrastructure）**。
 
-- **日常查询时极致的 Token 节省**：虽然初始生成（ABC循环）会消耗一定的算力（建议利用夜间闲置配额），但在日常开发中，你不再需要每次提问都把庞大的代码库硬塞进上下文。AI 只需要读取极其精简的 `SKILL.md`（高浓度认知压缩），日常对话的 Token 消耗和等待延迟降低 90% 以上，实现“一次编译，无限次低成本查询”。
-- **零依赖与跨生态兼容**：纯原生 Markdown 与 YAML 结构，不依赖任何第三方运行时插件，天生兼容 Codex、Gemini CLI、Claude Code 等主流智能体。
-- **自动绘制架构图**：在梳理状态流转和核心控制逻辑时，强制自动生成 ASCII / Mermaid 可视化架构图，让晦涩的代码一目了然。
-- **彻底杜绝“幻觉”**：首创的 ABC 闭卷考试验证循环（Agent C 必须在不看源码的情况下，仅凭文档答出 Agent B 提出的细节考题），确保生成的知识库 100% 详实可靠。
+它依然产出**经过验证的认知技能**，但在状态维护上，它采用了类似于“增量编译器（Incremental Compiler）”或“数据库引擎（Database Engine）”的严格事务语义。
 
-### 工作流程
+### 核心协议不变量
+- **漏杀（False Negative）是致命灾难**：过度计算（浪费 Token）是可以接受的经济成本；但漏更新依赖节点（认知过期）则是绝对不可容忍的结构性数据损坏（P0 级灾难）。
+- **显式触发，拒绝后台魔法**：当代码发生变更时，**必须由你显式地触发认知同步事务**。系统内没有任何在后台悄悄修改 `.metadata.json` 的监听器，以此保证认知状态的绝对可审计性与确定性。
+- **只做全量替换，绝不合并**：为了彻底消灭幽灵节点和过期缺口，脏模块的元数据永远只会被原子级重建，绝不使用 Append 或 Merge 操作。
+- **评测先行（Benchmark-Before-Feature）**：该协议的稳定性已经通过在真实开源仓库（TypeScript、Rust）上连续几十次的 Git Commit 回放压测，确保了零幽灵状态残留和绝对的字节级确定性。
 
-```
-扫描仓库 → 识别模块和依赖关系 → 你选择要读的模块
-                          ↓
-            逐模块：精读源码 → 生成 skill
-                          ↓
-                 闭卷考试验证（ABC 循环）
-                          ↓
-         Agent B（读代码，不看 skill）→ 出考题 + 标准答案
-         Agent C（看 skill，不读代码）→ 闭卷答题
-                          ↓
-              通过？→ 下一模块 / 不通过？→ 改进 skill → 重考
-                          ↓
-              生成全局索引 + 与你进行问答验收
-```
+### 工作流程一：初始冷启动（Cold Start）
+1. **扫描与拓扑提取**：工具扫描并构建整个仓库的模块与依赖关系图。
+2. **源码精读**：Agent A 精读代码并生成知识库（Skill）。
+3. **闭卷考试验证（ABC 循环）**：
+   - Agent B（看源码）提出高难度考题。
+   - Agent C（只看知识库，不看源码）进行闭卷答题。
+   - 答错则强迫 Agent A 回炉重造，补充缺失的认知。
+4. **合成（Synthesis）**：生成跨模块的全局路由树。
 
-工具首先扫描仓库结构，梳理出模块划分和依赖关系，然后让你选择要深读哪些模块。每个模块都会经过一轮彻底的精读，随后进入**闭卷考试** —— 如果 Agent C 仅凭生成的 skill 文件就能回答细节问题、完全不接触源码，那说明这些 skill 确实够全面。如果答不出来，就继续完善直到能答出来。
+### 工作流程二：增量认知同步事务（Incremental Updates）
+代码变了？AI 的认知状态也必须同步进化。
 
-## 让你的 Token 在你睡觉时学习
-
-大多数订阅套餐包含约 5 小时的每日 AI 算力额度，夜间大量闲置。Deep Code Reader 把这些空闲额度变成积累的知识。
-
-睡前启动，醒来就有一整套经过验证的技能可以加载。跑的仓库越多，你的 AI 懂的就越多 —— 利用夜间额度，零额外成本持续积累。
+1. **Phase 0 (检测与雪崩标记)**：严格对比当前文件系统与 `.metadata.json`。只要检测到共享层或模糊依赖发生变动，系统会立刻触发防卫性的雪崩标记，将大量模块标为脏数据，宁可错杀绝不漏过。
+2. **Phase 4 (验证与重塑)**：被标记的脏模块会被原子化抹除，重新打入 ABC 循环进行知识重塑。
+3. **Phase 5 (认知垃圾回收)**：孤儿模块和作废的路由路径会被无情地从全局清单中彻底清除。
 
 ## 快速开始
 
 ### 安装
 
-把 `deep-code-read` 目录添加到你的 agent 技能目录。建议使用跨助手通用的 `~/.agents/` 目录：
+将 `deep-code-read` 添加到你的跨平台 agent 技能目录：
 
 ```bash
 git clone https://github.com/Administration-626/deep-code-reader.git
-
-# 推荐：通用跨助手路径（支持 Codex, Copilot CLI, Gemini 等）
 cp -r deep-code-reader/deep-code-read ~/.agents/skills/
-
-# 或者，如果你更喜欢特定助手的专属目录：
-# cp -r deep-code-reader/deep-code-read ~/.gemini/skills/
-# cp -r deep-code-reader/deep-code-read ~/.claude/skills/
 ```
 
-
-
-### 使用
+### 首次初始化一个项目
 
 ```bash
-# 输出到跨平台 skills 目录（Codex、Gemini CLI、Copilot CLI 均可用）
-/deep-code-read https://github.com/example/project ~/.agents/skills/
-
-# 从本地仓库深读
 /deep-code-read ./path/to/project ~/.agents/skills/
 ```
 
-> **仅使用 Antigravity 的情况：** 如果你只用 Antigravity 且希望 skills 隔离在单个项目内，
-> 可以改用工作区路径：`/your/project/.agents/skills/`
+### 保持状态同步（显式增量事务）
 
-就这么简单。工具全自动运行，只在两个地方暂停等你确认：
-
-1. **确认版本** — 要分析的 tag/分支
-2. **选择模块** — 要深读的模块
-
-### 卸载
-
-由于技能完全是基于纯文本目录结构的，不涉及任何系统级进程或环境变量，卸载极其简单，只需删除对应的文件夹即可：
+**极其关键的铁律：** 本系统**不在后台自动运行**。当你完成了重大的代码重构，或从主干拉取了大量更新后，你必须像执行数据库 Commit 一样，主动触发认知同步：
 
 ```bash
-# 卸载 deep-code-read 核心技能
-rm -rf ~/.agents/skills/deep-code-read/
-
-# 卸载某个项目的知识库
-rm -rf ~/.agents/skills/project-dr/
-# 若已复制到 Claude Code，一并删除：
-rm -rf ~/.claude/skills/project-dr/
+/deep-code-incremental ./path/to/project ~/.agents/skills/
 ```
+*注：该指令会严格执行 Diff 并安全地在依赖树上传导失效（Invalidation），最终刷新全局认知元数据。它能在保证 ACID 级别认知健康度的前提下，为你最大程度地节省 Token。*
 
-## 产出物
+## 为什么不采用后台自动同步？
 
-```text
-~/.agents/skills/               # 跨平台 skills 目录（Codex, Gemini CLI, Copilot CLI 均可读取）
-  project-dr/                   # 唯一顶层条目 —— 索引技能
-    SKILL.md                    # 全局架构与模块路由
-    auth/                       # 模块技能（通过索引按需读取）
-      SKILL.md
-      reference.md              # 复杂模块可选
-    routing/                    # 模块技能
-      SKILL.md
-    ...
-```
+我们刻意封杀了类似于传统 IDE Language Server 那样的后台自动更新机制。
 
-> **Claude Code 用户：** Claude Code 只读取 `~/.claude/skills/`，不读取 `~/.agents/skills/`。生成完成后，运行：
-> ```bash
-> cp -r ~/.agents/skills/project-dr ~/.claude/skills/
-> ```
+在一个“认知事务系统”里，每一次状态变更都极其昂贵（无论是 Token 成本还是系统熵增）。如果允许一个后台脚本在你重构写了一半、代码还处在破碎状态时，就自作聪明地修改 `.metadata.json`，它会轻易引入非确定性的幽灵状态和缓存投毒（Cache Poisoning）。
 
-### 每个模块技能覆盖 5 个维度：
-
-| 维度 | 内容 |
-|---|---|
-| **职责与能力** | 模块做什么，公开 API，函数签名 |
-| **核心设计逻辑** | 为什么这样设计，关键架构决策 |
-| **数据结构** | 核心类型、接口及其关系 |
-| **状态流转** | 数据如何流动，入口点，错误处理路径，并强制生成 ASCII/Mermaid 架构图 |
-| **修改指南** | "要改 X 功能，需要动这些文件" |
-
-### 全局索引技能包含：
-
-- 仓库来源、版本号、跟踪分支
-- 所有模块及一句话描述
-- 模块间依赖关系图
-- 跨模块场景指南
-
-## ABC 验证循环
-
-这就是 deep-code-reader 区别于"又一个代码摘要工具"的核心：
-
-- **Agent A**（主模型）：读源码，生成技能文件
-- **Agent B**（轻量模型）：读源码但不看技能，出考题并附带答案和必要事实点
-- **Agent C**（主模型）：只看技能文件，闭卷答题
-
-每轮迭代，B 都会追加**新题目**覆盖未测试的领域 —— 所以 A 不能只针对考过的题补课。每个模块最多 3 轮；未解决的差距会呈现给你判断。
-
-## 生成完成后
-
-工具进入**问答验收阶段**：
-
-- 随意提问，AI 仅凭生成的技能回答
-- 如果不知道问什么，Agent B 生成的推荐深度问题可供参考
-- 如果仅凭技能答不出来，这就是一个诚实的差距信号
-
-## 平台支持
-
-Deep Code Reader 不绑定特定平台。只要 AI 编程 agent 支持以下特性即可使用：
-
-- 技能/指令文件加载
-- 子代理调度
-- 文件系统读写
-
-已在 Claude Code 上测试通过。理论上兼容 Codex、Gemini CLI 及其他支持 skill 的 agent。
-
-## License
-
-MIT
+我们将状态更新设计成一个**显式发起的、确定性的事务动作**，从而保证 AI 的认知永远死死锁定在某一个稳定的 Git Commit 上。这才是真正经得起时间考验的工程学。
