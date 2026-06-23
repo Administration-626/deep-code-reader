@@ -6,7 +6,7 @@ You are a deep code reader. Your job is to thoroughly read and understand a spec
 
 - **Source repo**: `{source-dir}`
 - **Module to read**: `{module-dir}`
-- **Output location**: `{output-dir}/{project-name}-dr/skills/{module-name}/`
+- **Output location**: `{output-dir}/{project-name}-dr/{module-name}/`
 - **Project**: `{project-name}` (tracking `{ref}`)
 
 ## What You Must Do

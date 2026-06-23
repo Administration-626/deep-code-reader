@@ -68,13 +68,15 @@ cp -r deep-code-reader/deep-code-read ~/.agents/skills/
 ### 使用
 
 ```bash
-# 从 GitHub URL 深读（输出到系统的插件目录）
-# 注：推荐输出到 ~/.agents/plugins/，以确保所有 AI 助手都能读取
-/deep-code-read https://github.com/example/project ~/.agents/plugins/
+# 输出到跨平台 skills 目录（Codex、Gemini CLI、Copilot CLI 均可用）
+/deep-code-read https://github.com/example/project ~/.agents/skills/
 
 # 从本地仓库深读
-/deep-code-read ./path/to/project ~/.agents/plugins/
+/deep-code-read ./path/to/project ~/.agents/skills/
 ```
+
+> **仅使用 Antigravity 的情况：** 如果你只用 Antigravity 且希望 skills 隔离在单个项目内，
+> 可以改用工作区路径：`/your/project/.agents/skills/`
 
 就这么简单。工具全自动运行，只在两个地方暂停等你确认：
 
@@ -89,26 +91,30 @@ cp -r deep-code-reader/deep-code-read ~/.agents/skills/
 # 卸载 deep-code-read 核心技能
 rm -rf ~/.agents/skills/deep-code-read/
 
-# 卸载它曾经为你生成的某个项目的知识库插件
-rm -rf ~/.agents/plugins/project-dr/
+# 卸载某个项目的知识库
+rm -rf ~/.agents/skills/project-dr/
+# 若已复制到 Claude Code，一并删除：
+rm -rf ~/.claude/skills/project-dr/
 ```
 
 ## 产出物
 
 ```text
-~/.agents/plugins/              # 通用知识库插件存放点
-  project-dr/                   # 自动生成的知识库插件包
-    plugin.json                 # 插件配置
-    skills/
-      index/                    # 全局架构与路由索引
-        SKILL.md
-      auth/                     # 模块认知技能
-        SKILL.md
-        reference.md            # 复杂模块可选
-      routing/
-        SKILL.md
-  ...
+~/.agents/skills/               # 跨平台 skills 目录（Codex, Gemini CLI, Copilot CLI 均可读取）
+  project-dr/                   # 唯一顶层条目 —— 索引技能
+    SKILL.md                    # 全局架构与模块路由
+    auth/                       # 模块技能（通过索引按需读取）
+      SKILL.md
+      reference.md              # 复杂模块可选
+    routing/                    # 模块技能
+      SKILL.md
+    ...
 ```
+
+> **Claude Code 用户：** Claude Code 只读取 `~/.claude/skills/`，不读取 `~/.agents/skills/`。生成完成后，运行：
+> ```bash
+> cp -r ~/.agents/skills/project-dr ~/.claude/skills/
+> ```
 
 ### 每个模块技能覆盖 5 个维度：
 

@@ -68,13 +68,15 @@ cp -r deep-code-reader/deep-code-read ~/.agents/skills/
 ### Use
 
 ```bash
-# From a GitHub URL (output to system's plugins directory)
-# Note: We recommend outputting to ~/.agents/plugins/ for cross-agent compatibility
-/deep-code-read https://github.com/example/project ~/.agents/plugins/
+# Output to the cross-agent skills directory (works with Codex, Gemini CLI, Copilot CLI)
+/deep-code-read https://github.com/example/project ~/.agents/skills/
 
 # From a local repo
-/deep-code-read ./path/to/project ~/.agents/plugins/
+/deep-code-read ./path/to/project ~/.agents/skills/
 ```
+
+> **Antigravity-only setup:** if you prefer project-scoped isolation and only use Antigravity,
+> you can output to your workspace instead: `/your/project/.agents/skills/`
 
 That's it. The tool handles everything automatically, pausing only twice for your input:
 
@@ -89,26 +91,30 @@ Since skills are entirely based on plain-text directory structures and involve n
 # Uninstall the core deep-code-read skill
 rm -rf ~/.agents/skills/deep-code-read/
 
-# Uninstall any auto-generated project knowledge base plugin
-rm -rf ~/.agents/plugins/project-dr/
+# Uninstall a generated project knowledge base
+rm -rf ~/.agents/skills/project-dr/
+# If also copied to Claude Code:
+rm -rf ~/.claude/skills/project-dr/
 ```
 
 ## What You Get
 
 ```text
-~/.agents/plugins/              # Universal plugin location
-  project-dr/                   # Auto-generated knowledge base plugin
-    plugin.json                 # Plugin config
-    skills/
-      index/                    # Global architecture & router
-        SKILL.md
-      auth/                     # Module cognitive skill
-        SKILL.md
-        reference.md            # Optional for complex modules
-      routing/
-        SKILL.md
-  ...
+~/.agents/skills/               # Cross-agent skills directory (Codex, Gemini CLI, Copilot CLI)
+  project-dr/                   # Single top-level entry — index skill
+    SKILL.md                    # Architecture overview + module router
+    auth/                       # Module skill (read on demand via index)
+      SKILL.md
+      reference.md              # Optional, for complex modules
+    routing/                    # Module skill
+      SKILL.md
+    ...
 ```
+
+> **Claude Code:** does not read `~/.agents/skills/`. After generation, run:
+> ```bash
+> cp -r ~/.agents/skills/project-dr ~/.claude/skills/
+> ```
 
 ### Each module skill covers 5 dimensions:
 

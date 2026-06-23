@@ -19,7 +19,7 @@ The core mechanism: a closed-book exam verification loop ensures generated skill
 ```
 
 - **source**: local path (e.g., `./path/to/repo`) or GitHub URL (e.g., `https://github.com/org/repo`)
-- **output-dir**: where generated skills are written (e.g., your platform's skills directory)
+- **output-dir**: where generated skills are written. Recommended: **`~/.agents/skills/`** — natively scanned by Codex, Gemini CLI, and Copilot CLI. The generated skill names (`{project-name}-dr`, `{project-name}-dr-*`) are project-namespaced, so skills from different projects don't conflict. Claude Code users also need to copy to `~/.claude/skills/` (see Phase 5).
 
 ## Full Flow
 
@@ -72,7 +72,7 @@ For each selected module, dispatch a subagent with the prompt template from `age
 - `{module-name}`: the module name
 - `{ref}`: the tracked tag/branch
 
-After Agent A completes, verify the skill files were written to `{output-dir}/{project-name}-dr/skills/{module-name}/`. Update the module's task status.
+After Agent A completes, verify the skill files were written to `{output-dir}/{project-name}-dr/{module-name}/`. Update the module's task status.
 
 ### Phase 4: Verify (ABC Loop)
 
@@ -106,7 +106,7 @@ Dispatch a subagent with `agent-c-prompt.md`.
 - `description`: "Verify skills for {module-name}"
 
 **Variables:**
-- `{skill-dir}`: `{output-dir}/{project-name}-dr/skills/{module-name}/`
+- `{skill-dir}`: `{output-dir}/{project-name}-dr/{module-name}/`
 - `{questions}`: the verification questions from Agent B (without answer keys)
 
 Agent C returns answers to each question.
@@ -134,7 +134,7 @@ For each question, check Agent C's answer against Agent B's `required_facts` lis
 
 ### Phase 5: Generate Global Index
 
-After all modules are verified, generate the plugin index at `{output-dir}/{project-name}-dr/skills/index/SKILL.md`:
+After all modules are verified, generate the index skill at `{output-dir}/{project-name}-dr/SKILL.md`:
 
 ```yaml
 ---
@@ -154,12 +154,26 @@ Content must include:
 
 To generate cross-module scenarios, read ALL the module skills and synthesize typical user workflows.
 
-Also generate `{output-dir}/{project-name}-dr/plugin.json`:
-```json
-{
-  "name": "{project-name}-dr"
-}
+**Output directory layout** (one top-level entry, modules nested inside):
 ```
+{output-dir}/
+  {project-name}-dr/          ← single top-level skill entry
+    SKILL.md                  ← index: architecture overview + module router
+    {mod1}/                   ← module skill (read on demand via index)
+      SKILL.md
+      reference.md            (optional, for complex modules)
+    {mod2}/
+      SKILL.md
+    ...
+```
+
+This keeps the skills directory clean — one entry per project, regardless of how many modules were deep-read. Agents discover `{project-name}-dr` as a single skill; the index SKILL.md routes them to the right module file when needed.
+
+**Claude Code note:** Claude Code reads `~/.claude/skills/` and does NOT read `~/.agents/skills/`. After generation, tell the user:
+> "Claude Code users: run `cp -r {output-dir}/{project-name}-dr ~/.claude/skills/` to make these skills available in Claude Code."
+
+**Workspace-scoped (Antigravity only):** If you are using Antigravity exclusively and want skills strictly isolated to one project, use `<workspace-root>/.agents/skills/` as `{output-dir}` instead. Antigravity auto-discovers it; other agents will not see these skills.
+
 
 ### Phase 6: User Acceptance
 
@@ -171,7 +185,7 @@ Present the recommended questions collected from Phase 4:
 > Feel free to ask any question about {project-name}. I'll answer using ONLY the generated skills."
 
 When answering user questions in this phase:
-- Read ONLY the generated skill files in `{output-dir}/{project-name}-dr/skills/*/`
+- Read ONLY the generated skill files in `{output-dir}/{project-name}-dr/` and its subdirectories
 - Do NOT read source code
 - If you cannot answer a question from the skills alone, say so honestly — this indicates a gap
 
